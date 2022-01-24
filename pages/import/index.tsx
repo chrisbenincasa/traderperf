@@ -1,7 +1,7 @@
 import type { NextPage } from 'next';
 import { ChangeEvent, useRef, useState } from 'react';
 import { Trade } from '../../model';
-import IbkrParser from '../../parsers/ibkr_parser';
+import IbkrParser from '../../parsers/ibkrParser';
 import TradeMatcher from '../../util/tradeMatcher';
 
 const ImportTrades: NextPage = () => {
