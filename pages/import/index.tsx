@@ -1,5 +1,6 @@
 import type { NextPage } from 'next';
-import { ChangeEvent, useRef, useState } from 'react';
+import { ChangeEvent, useMemo, useRef, useState } from 'react';
+import TradesTable from '../../components/tradesTable';
 import { Trade } from '../../model';
 import IbkrParser from '../../parsers/ibkrParser';
 import TradeMatcher from '../../util/tradeMatcher';
@@ -32,36 +33,13 @@ const ImportTrades: NextPage = () => {
     }
   };
 
-  const tradeList = trades.map((trade) => {
-    const key = `${trade.symbol}_ ${trade.executions[0].timestamp.toMillis()}`;
-    return (
-      <tr key={key}>
-        <td>{trade.symbol}</td>
-        <td>{trade.executions.length}</td>
-        <td>{trade.executions[0].timestamp.toISOTime()}</td>
-        <td>{trade.isShort ? 'Short' : 'Long'}</td>
-        <td>{trade.closedPl}</td>
-      </tr>
-    );
-  });
-
   return (
     <div>
-      <h1>import</h1>
+      <h1 className="text-3xl font-bold underline">import</h1>
+      <p className="mt-3 text-2xl">tset trest test test</p>
       <input type="file" ref={fileInputEl} onChange={handleSubmit} />
       <button onClick={handleClear}>Clear file</button>
-      <table>
-        <thead>
-          <tr>
-            <td>Symbol</td>
-            <td>Executions</td>
-            <td>Opened</td>
-            <td>Long/Short</td>
-            <td>Realized P/L</td>
-          </tr>
-        </thead>
-        <tbody>{tradeList}</tbody>
-      </table>
+      <TradesTable trades={trades} />
     </div>
   );
 };
