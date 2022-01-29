@@ -1,4 +1,5 @@
-import { dinero, Dinero, DineroSnapshot } from 'dinero.js';
+import { USD } from '@dinero.js/currencies';
+import { Currency, dinero, Dinero, DineroSnapshot } from 'dinero.js';
 
 export function dineroFromSnapshot(
   snapshot: DineroSnapshot<number>
@@ -9,3 +10,6 @@ export function dineroFromSnapshot(
     scale: snapshot.scale,
   });
 }
+
+export const zero = (currency: Currency<number> = USD) =>
+  dinero({ amount: 0, currency });

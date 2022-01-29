@@ -34,10 +34,19 @@ const ImportTrades: NextPage = () => {
   };
 
   return (
-    <div>
+    <div className="container mx-auto">
       <h1 className="text-3xl font-bold underline">import</h1>
-      <p className="mt-3 text-2xl">tset trest test test</p>
-      <input type="file" ref={fileInputEl} onChange={handleSubmit} />
+      <input
+        type="file"
+        className="block w-full text-sm text-slate-500
+      file:mr-4 file:rounded-full file:border-0
+      file:bg-violet-50 file:py-2
+      file:px-4 file:text-sm
+      file:font-semibold file:text-violet-700
+      hover:file:bg-violet-100"
+        ref={fileInputEl}
+        onChange={handleSubmit}
+      />
       <button onClick={handleClear}>Clear file</button>
       <TradesTable trades={trades} />
     </div>

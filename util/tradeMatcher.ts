@@ -1,7 +1,7 @@
-import { USD } from '@dinero.js/currencies';
-import { add, dinero, Dinero, multiply, toSnapshot, toUnit } from 'dinero.js';
+import { add, Dinero, multiply } from 'dinero.js';
 import _ from 'lodash';
 import { Execution, ExecutionType, Trade } from '../model';
+import { zero } from './dineroUtil';
 
 interface TradeContext {
   outstandingQuantity: number;
@@ -19,7 +19,7 @@ class TradeContextImpl {
       isOpen: true,
       isShort: execution.quantity < 0,
       executions: [execution],
-      closedPl: toSnapshot(dinero({ amount: 0, currency: USD })),
+      closedPl: zero(),
       outflow: execution.totalOutflow,
     };
   }
@@ -75,9 +75,8 @@ export default class TradeMatcher {
                 multiply(execution.totalOutflow, -1)
               );
 
-              currentTradeContext.currentTrade.closedPl = toSnapshot(
-                currentTradeContext.cumulativePl
-              );
+              currentTradeContext.currentTrade.closedPl =
+                currentTradeContext.cumulativePl;
 
               if (
                 currentTradeContext.outstandingQuantity + execution.quantity ===
@@ -112,9 +111,8 @@ export default class TradeMatcher {
                 multiply(execution.totalOutflow, -1)
               );
 
-              currentTradeContext.currentTrade.closedPl = toSnapshot(
-                currentTradeContext.cumulativePl
-              );
+              currentTradeContext.currentTrade.closedPl =
+                currentTradeContext.cumulativePl;
 
               if (
                 currentTradeContext.outstandingQuantity + execution.quantity ===
@@ -145,7 +143,7 @@ export default class TradeMatcher {
               isOpen: true,
               isShort: execution.quantity < 0,
               executions: [execution],
-              closedPl: toSnapshot(dinero({ amount: 0, currency: USD })),
+              closedPl: zero(),
               outflow: execution.totalOutflow,
             },
           };
