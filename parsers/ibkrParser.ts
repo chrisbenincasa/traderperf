@@ -1,7 +1,7 @@
 import { USD } from '@dinero.js/currencies';
 import { dinero, Dinero } from 'dinero.js';
 import { DateTime } from 'luxon';
-import { Execution, ExecutionType } from '../model';
+import { Execution, ExecutionType, Platform } from '../model';
 import BaseParser, { ParseResult } from './base';
 
 interface ParseContext {
@@ -19,6 +19,10 @@ function makeStartingContext(): ParseContext {
 export default class IbkrParser extends BaseParser {
   private static ACCOUNT_INFO_HEADER = 'ACCOUNT_INFORMATION';
   private static STOCK_TRANSACTIONS_HEADER = 'STOCK_TRANSACTIONS';
+
+  platform(): Platform {
+    return Platform.INTERACTIVE_BROKERS;
+  }
 
   parse(input: string): ParseResult {
     const context = makeStartingContext();
@@ -85,6 +89,7 @@ export default class IbkrParser extends BaseParser {
     );
 
     return {
+      platform: this.platform(),
       symbol: transactionParts[2],
       executionType: this.convertExecutionType(transactionParts[5])!,
       timestamp: dt,

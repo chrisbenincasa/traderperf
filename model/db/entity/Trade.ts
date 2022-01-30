@@ -1,10 +1,29 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Platform } from '../..';
 import { Execution } from './Execution';
 
 @Entity()
 export class Trade {
-  @PrimaryGeneratedColumn('uuid') id: string;
-  @Column() symbol: string;
+  @PrimaryGeneratedColumn() userId?: number;
+
+  @PrimaryColumn() symbol: string;
+
+  @PrimaryColumn() opened: Date;
+
+  @PrimaryColumn({
+    type: 'enum',
+    enum: Platform,
+    enumName: 'platform',
+  })
+  platform: Platform;
+
+  @Column() closed?: Date;
 
   @OneToMany(() => Execution, (execution) => execution.trade)
   executions: Execution[];

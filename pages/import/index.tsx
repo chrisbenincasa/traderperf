@@ -1,28 +1,33 @@
 import type { NextPage } from 'next';
-import { ChangeEvent, useMemo, useRef, useState } from 'react';
+import { ChangeEvent, useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import TradesTable from '../../components/tradesTable';
-import { Trade } from '../../model';
-import IbkrParser from '../../parsers/ibkrParser';
+import { saveExxecutionsAsync } from '../../features/executionsSlice';
+import {
+  allPlatforms,
+  Platform,
+  platformToPrettyString,
+  Trade,
+} from '../../model';
+import ParserFactory from '../../parsers/parserFactory';
 import TradeMatcher from '../../util/tradeMatcher';
 
 const ImportTrades: NextPage = () => {
   const fileInputEl = useRef<HTMLInputElement | null>(null);
   const [trades, setTrades] = useState<Trade[]>([]);
+  const [broker, setBroker] = useState<Platform>(allPlatforms[0]);
+  const dispatch = useDispatch();
 
-  const handleSubmit = function (event: ChangeEvent<HTMLInputElement>) {
-    const reader = new FileReader();
-
-    reader.onload = (readerOnLoad) => {
-      const result = new IbkrParser().parse(
-        readerOnLoad.target?.result as string
-      );
-      setTrades(new TradeMatcher().match(result.executions));
-    };
-
+  const handleSubmit = async function (event: ChangeEvent<HTMLInputElement>) {
     if (event.target.files) {
-      for (let i = 0; i < event.target.files.length; i++) {
-        const file = event.target.files[i];
-        reader.readAsText(file);
+      const file = event.target.files[0];
+      const parser = ParserFactory.getParser(broker);
+      if (parser) {
+        const data = await file.text();
+        const result = parser.parse(data);
+        const matched = new TradeMatcher().match(result.executions);
+        dispatch(saveExxecutionsAsync(result.executions));
+        setTrades(matched);
       }
     }
   };
@@ -33,9 +38,21 @@ const ImportTrades: NextPage = () => {
     }
   };
 
+  const platforms = allPlatforms.map((platform) => (
+    <option key={platform} value={platform}>
+      {platformToPrettyString(platform)}
+    </option>
+  ));
+
   return (
     <div className="container mx-auto">
       <h1 className="text-3xl font-bold underline">import</h1>
+      <select
+        value={broker}
+        onChange={(v) => setBroker(v.target.value as Platform)}
+      >
+        {platforms}
+      </select>
       <input
         type="file"
         className="block w-full text-sm text-slate-500

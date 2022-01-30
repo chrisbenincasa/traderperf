@@ -13,7 +13,7 @@ module.exports = {
   username: 'postgres',
   password: 'password',
   database: database[process.env.NODE_ENV],
-  entities: ['./model/db/entity/*{.ts,.js}'],
+  entities: [__dirname + '/model/db/entity/**/*.ts'],
   synchronize: process.env.NODE_ENV !== 'production',
   migrationsTableName: 'migration',
   migrations: ['migration/*.js'],

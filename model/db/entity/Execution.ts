@@ -1,12 +1,28 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { ExecutionType } from '../..';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { ExecutionType, Platform } from '../..';
 import { Trade } from './Trade';
 
 @Entity()
 export class Execution {
-  @PrimaryGeneratedColumn('uuid') id: string;
-  @Column() symbol: string;
-  @Column() executionTimestamp: Date;
+  @PrimaryColumn() userId?: number;
+
+  @PrimaryColumn() symbol: string;
+
+  @PrimaryColumn() executionTimestamp: Date;
+
+  @PrimaryColumn({
+    type: 'enum',
+    enum: Platform,
+    enumName: 'platform',
+  })
+  platform: Platform;
+
   @Column({
     type: 'enum',
     enum: ExecutionType,
