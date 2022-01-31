@@ -139,6 +139,7 @@ export default class TradeMatcher {
             cumulativePl: multiply(execution.totalOutflow, -1),
             currentTrade: {
               symbol,
+              platform: execution.platform,
               quantity: execution.quantity,
               isOpen: true,
               isShort: execution.quantity < 0,

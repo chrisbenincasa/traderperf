@@ -7,13 +7,13 @@ import {
   getConnectionManager,
   getConnectionOptions,
 } from 'typeorm';
-import { Execution } from '../model/db/entity/Execution';
-import { Trade } from '../model/db/entity/Trade';
+import { ExecutionDao } from '../model/db/entity/ExecutionDao';
+import { TradeDao } from '../model/db/entity/TradeDao';
 
 export async function initDb(): Promise<Connection> {
   const connectionOptions = await getConnectionOptions();
   Object.assign(connectionOptions, {
-    entities: [Execution, Trade],
+    entities: [ExecutionDao, TradeDao],
   });
   return await createConnection();
 }
@@ -60,7 +60,7 @@ class Database {
     this.hasCreatedConnection = true;
     const connectionOptions = await getConnectionOptions();
     Object.assign(connectionOptions, {
-      entities: [Execution, Trade],
+      entities: [ExecutionDao, TradeDao],
     });
     return createConnection(connectionOptions);
   }

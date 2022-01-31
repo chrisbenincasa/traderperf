@@ -2,7 +2,7 @@ import type { NextPage } from 'next';
 import { ChangeEvent, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import TradesTable from '../../components/tradesTable';
-import { saveExxecutionsAsync } from '../../features/executionsSlice';
+import { saveExecutionsAsync } from '../../features/executionsSlice';
 import {
   allPlatforms,
   Platform,
@@ -26,7 +26,7 @@ const ImportTrades: NextPage = () => {
         const data = await file.text();
         const result = parser.parse(data);
         const matched = new TradeMatcher().match(result.executions);
-        dispatch(saveExxecutionsAsync(result.executions));
+        dispatch(saveExecutionsAsync(result.executions));
         setTrades(matched);
       }
     }

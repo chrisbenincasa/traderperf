@@ -1,5 +1,11 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Execution, ExecutionJson, toExecutionJson } from '../model';
+import {
+  Execution,
+  ExecutionJson,
+  toExecutionJson,
+  TradeJson,
+  TraderperfResponse,
+} from '../model';
 import TraderPerfApiClient from '../util/apiClient';
 
 export interface ExeuctionsState {
@@ -18,13 +24,13 @@ export const getExecutionsAsync = createAsyncThunk(
   }
 );
 
-export const saveExxecutionsAsync = createAsyncThunk(
+export const saveExecutionsAsync = createAsyncThunk(
   'executions/fetch',
   async (executions: Execution[]) => {
     const response = await new TraderPerfApiClient().saveExecutions(
       executions.map(toExecutionJson)
     );
-    return response.data as object;
+    return response.data as TraderperfResponse<TradeJson>;
   }
 );
 

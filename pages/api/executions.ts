@@ -2,11 +2,20 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getConnection, getConnectionManager } from 'typeorm';
 import db from '../../app/db';
-import { ExecutionJson, TraderperfRequest } from '../../model';
-import { Execution } from '../../model/db/entity/Execution';
+import {
+  ExecutionJson,
+  fromExeuctionJson,
+  toTradeJson,
+  TradeJson,
+  TraderperfRequest,
+} from '../../model';
+import { ExecutionDao } from '../../model/db/entity/ExecutionDao';
+import { TradeDao } from '../../model/db/entity/TradeDao';
+import TradeMatcher from '../../util/tradeMatcher';
 
 type Data = {
-  name: string;
+  data?: TradeJson[];
+  error?: string;
 };
 
 export default async function handler(
@@ -17,27 +26,24 @@ export default async function handler(
 
   if (req.method === 'POST') {
     const body = req.body as TraderperfRequest<ExecutionJson[]>;
-    console.log(body);
 
-    const daos = body.data.map((execution) => {
-      const dao = new Execution();
-      dao.userId = 1; // Hardcode right now
-      dao.symbol = execution.symbol;
-      dao.executionTimestamp = new Date(execution.timestamp);
-      dao.platform = execution.platform;
-      dao.executionType = execution.executionType;
-      dao.quantity = execution.quantity;
-      dao.pricePerShare = execution.pps.amount;
-      dao.pricePerShareScale = execution.pps.scale;
-      dao.currency = execution.pps.currency.code;
-      dao.totalOutflow = execution.totalOutflow.amount;
-      dao.totalOutflowScale = execution.totalOutflow.scale;
-      return dao;
-    });
+    if (body.data.length === 0) {
+      res.status(400).json({ error: 'No' });
+    }
 
-    await manager.save(daos);
+    const trades = new TradeMatcher().match(body.data.map(fromExeuctionJson));
+
+    const savedTrades = await manager.save(
+      trades.map((trade) => TradeDao.fromTrade(trade))
+    );
+
+    // TODO group by platform
+
+    res
+      .status(200)
+      .json({ data: savedTrades.map((trade) => toTradeJson(trade.toTrade())) });
   }
 
   // await initDb();
-  res.status(200).json({ name: 'John Doe' });
+  res.status(200).json({ data: [] });
 }
