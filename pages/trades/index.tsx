@@ -1,14 +1,13 @@
 import { NextPage } from 'next';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import TradesChart from '../../components/tradesChart';
-import TradesSimpleStatsTable from '../../components/tradesSimpleStatsTable';
+import TradesTable from '../../components/tradesTable';
 import {
-  getExecutionsAsync,
   selectTrades,
+  getExecutionsAsync,
 } from '../../features/executionsSlice';
 
-const StatsPage: NextPage = () => {
+const TradesPage: NextPage = () => {
   const dispatch = useDispatch();
   const trades = useSelector(selectTrades);
 
@@ -18,10 +17,9 @@ const StatsPage: NextPage = () => {
 
   return (
     <div>
-      <TradesSimpleStatsTable trades={trades} />
-      <TradesChart trades={trades} />
+      <TradesTable trades={trades} />
     </div>
   );
 };
 
-export default StatsPage;
+export default TradesPage;

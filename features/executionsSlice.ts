@@ -51,7 +51,6 @@ export const executionsSlice = createSlice({
     builder.addCase(
       getExecutionsAsync.fulfilled,
       (state, action: PayloadAction<TraderperfResponse<TradeJson[]>>) => {
-        console.log(action.payload);
         state.trades = [...action.payload.data];
       }
     );
