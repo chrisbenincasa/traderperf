@@ -42,8 +42,10 @@ export default async function handler(
     res
       .status(200)
       .json({ data: savedTrades.map((trade) => toTradeJson(trade.toTrade())) });
+  } else if (req.method === 'GET') {
+    const trades = await manager.find(TradeDao);
+    res.json({ data: trades.map((trade) => toTradeJson(trade.toTrade())) });
+  } else {
+    res.status(200).json({ data: [] });
   }
-
-  // await initDb();
-  res.status(200).json({ data: [] });
 }
