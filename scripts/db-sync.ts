@@ -1,8 +1,10 @@
 import { createConnection } from 'typeorm';
 
-export default async function syncDb() {
+export default async function syncDb(args: string[]) {
+  console.log(args);
   const connection = await createConnection();
-  await connection.synchronize();
+  const drop = args.length > 0 ? args[0] === 'drop' : false;
+  await connection.synchronize(drop);
 }
 
-syncDb();
+syncDb(process.argv.slice(2));

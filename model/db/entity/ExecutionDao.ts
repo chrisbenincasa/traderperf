@@ -1,20 +1,34 @@
-import { Currency, dinero, toSnapshot } from 'dinero.js';
+import { dinero, toSnapshot } from 'dinero.js';
 import { DateTime } from 'luxon';
-import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm';
 import { Execution, ExecutionType, Platform } from '../..';
 import { currencyFromCode } from '../../../util/dineroCurrencyUtil';
 import { TradeDao } from './TradeDao';
 
 @Entity('execution')
+@Unique('execution_per_user_uniq', [
+  'userId',
+  'symbol',
+  'executionTimestamp',
+  'platform',
+])
 export class ExecutionDao {
-  @PrimaryColumn() userId?: number;
+  @PrimaryGeneratedColumn() id: number;
 
-  @PrimaryColumn() symbol: string;
+  @Column() userId: number;
+
+  @Column() symbol: string;
 
   // TODO: Deal with timezones better
-  @PrimaryColumn() executionTimestamp: Date;
+  @Column() executionTimestamp: Date;
 
-  @PrimaryColumn({
+  @Column({
     type: 'enum',
     enum: Platform,
     enumName: 'platform',

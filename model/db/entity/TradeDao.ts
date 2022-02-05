@@ -4,23 +4,26 @@ import {
   Column,
   Entity,
   OneToMany,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm';
 import { Platform, Trade } from '../..';
 import { currencyFromCode } from '../../../util/dineroCurrencyUtil';
 import { ExecutionDao } from './ExecutionDao';
 
 @Entity('trade')
+@Unique('trade_per_user_uniq', ['userId', 'symbol', 'opened', 'platform'])
 export class TradeDao {
-  @PrimaryColumn() userId?: number;
+  @PrimaryGeneratedColumn() id?: number;
 
-  @PrimaryColumn() symbol: string;
+  @Column() userId: number;
+
+  @Column() symbol: string;
 
   // TODO: Deal with timezones better
-  @PrimaryColumn() opened: Date;
+  @Column() opened: Date;
 
-  @PrimaryColumn({
+  @Column({
     type: 'enum',
     enum: Platform,
     enumName: 'platform',
