@@ -14,7 +14,7 @@ module.exports = {
   password: 'password',
   database: database[process.env.NODE_ENV],
   entities: [__dirname + '/model/db/entity/**/*.ts'],
-  synchronize: process.env.NODE_ENV !== 'production',
+  synchronize: false,
   migrationsTableName: 'migration',
   migrations: ['migration/*.js'],
   cli: {

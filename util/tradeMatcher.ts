@@ -85,6 +85,8 @@ export default class TradeMatcher {
                 currentTradeContext.currentTrade.isOpen = false;
                 trades.push(currentTradeContext.currentTrade);
                 currentTradeContext = null;
+              } else {
+                currentTradeContext.outstandingQuantity += execution.quantity;
               }
             } else {
               // Error?
@@ -98,7 +100,12 @@ export default class TradeMatcher {
               currentTradeContext.currentTrade.executions.push(execution);
             } else {
               // Error?
-              throw new Error('');
+              throw new Error(
+                'Unexpecteed sell to open: \n currentTradeContext:\n' +
+                  JSON.stringify(currentTradeContext) +
+                  '\n execution: \n' +
+                  JSON.stringify(execution)
+              );
             }
             // If short this is an add.
             break;
@@ -121,6 +128,8 @@ export default class TradeMatcher {
                 currentTradeContext.currentTrade.isOpen = false;
                 trades.push(currentTradeContext.currentTrade);
                 currentTradeContext = null;
+              } else {
+                currentTradeContext.outstandingQuantity += execution.quantity;
               }
             } else {
               // Error?

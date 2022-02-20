@@ -6,7 +6,6 @@ import {
   dinero,
   Dinero,
   DineroSnapshot,
-  multiply,
   toFormat,
 } from 'dinero.js';
 import _ from 'lodash';

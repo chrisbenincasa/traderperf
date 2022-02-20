@@ -65,8 +65,9 @@ class Database {
     return createConnection(connectionOptions);
   }
 
-  public getManager(): Promise<EntityManager> {
-    return this.getConnection().then((conn) => conn.manager);
+  public async getManager(): Promise<EntityManager> {
+    const conn = await this.getConnection();
+    return conn.manager;
   }
 }
 

@@ -2,13 +2,18 @@
   "name": "trade-perf",
   "private": true,
   "scripts": {
-    "dev": "NODE_ENV=development TAILWIND_MODE=watch next dev -p 3001",
+    "dev": "NODE_ENV=development NODE_OPTIONS='--inspect' TAILWIND_MODE=watch next dev -p 3001",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "sync-db": "NODE_ENV=development ts-node ./scripts/db-sync.ts"
   },
   "dependencies": {
+    "@emotion/react": "^11.7.1",
+    "@emotion/server": "^11.4.0",
+    "@emotion/styled": "^11.6.0",
+    "@mui/icons-material": "^5.4.1",
+    "@mui/material": "^5.4.1",
     "@reduxjs/toolkit": "^1.7.1",
     "axios": "^0.25.0",
     "babel-plugin-transform-typescript-metadata": "^0.3.2",

@@ -2,14 +2,23 @@ import {
   add,
   greaterThan,
   lessThan,
+  lessThanOrEqual,
   maximum,
   minimum,
   toUnit,
 } from 'dinero.js';
 import _ from 'lodash';
+import { Duration } from 'luxon';
 import { useMemo } from 'react';
 import { Trade } from '../model';
-import { average, divide, sum, toUsdFormat, zero } from '../util/dineroUtil';
+import { average } from '../util/collectionUtil';
+import {
+  average as dineroAverage,
+  divide,
+  sum,
+  toUsdFormat,
+  zero,
+} from '../util/dineroUtil';
 import { groupByDate } from '../util/tradeUtil';
 
 interface Props {
@@ -71,7 +80,7 @@ export default function TradesSimpleStatsTable(props: Props) {
   }, [props.trades]);
 
   const averageWinner = useMemo(() => {
-    return average(
+    return dineroAverage(
       props.trades
         .filter((trade) => greaterThan(trade.closedPl, zero()))
         .map((trade) => trade.closedPl)
@@ -79,7 +88,7 @@ export default function TradesSimpleStatsTable(props: Props) {
   }, [props.trades]);
 
   const averageLoser = useMemo(() => {
-    return average(
+    return dineroAverage(
       props.trades
         .filter((trade) => lessThan(trade.closedPl, zero()))
         .map((trade) => trade.closedPl)
@@ -103,38 +112,97 @@ export default function TradesSimpleStatsTable(props: Props) {
     };
   }, [props.trades]);
 
+  const tradeDuration = (trade: Trade) => {
+    const open = _.first(trade.executions)!.timestamp;
+    const close = _.last(trade.executions)!.timestamp;
+    return close.diff(open).as('seconds');
+  };
+
+  const holdingTime = useMemo(() => {
+    const closedTrades = _.filter(props.trades, (trade) => !trade.isOpen);
+    const durations = _.map(closedTrades, tradeDuration);
+    return {
+      all: average(durations),
+      winners: average(
+        _.chain(closedTrades)
+          .filter((trade) => greaterThan(trade.closedPl, zero()))
+          .map(tradeDuration)
+          .value()
+      ),
+      losers: average(
+        _.chain(closedTrades)
+          .filter((trade) => lessThanOrEqual(trade.closedPl, zero()))
+          .map(tradeDuration)
+          .value()
+      ),
+    };
+  }, [props.trades]);
+
+  const stddev = useMemo(() => {}, [props.trades]);
+
   return (
-    <div
-      className='p-10" 
-    overflow-hidden rounded-t-xl bg-gradient-to-b  from-slate-100'
-    >
-      <table className="standard-table table-auto">
+    <div className="overflow-hidden rounded-t-xl p-10">
+      {/* <div className="flex divide-x-2 border-2">
+        <div className="flex flex-1">
+          <div className="grow px-6 py-4">Total gain/loss: </div>
+          <div className="py-4 pr-8">{toUsdFormat(totalGainLoss)}</div>
+        </div>
+        <div className="flex flex-1">
+          <div className="grow px-6 py-4">Largest gain: </div>
+          <div className="py-4 pr-8">{toUsdFormat(maxGain)}</div>
+        </div>
+      </div> */}
+      <table className="table-2">
         <tbody>
           <tr>
             <td>Total gain/loss: </td>
             <td>{toUsdFormat(totalGainLoss)}</td>
             <td>Largest gain: </td>
             <td>{toUsdFormat(maxGain)}</td>
-            <td>Average winner: </td>
-            <td>{toUsdFormat(averageWinner)}</td>
-            <td>Total trades: </td>
-            <td>{props.trades.length}</td>
-            <td>Number of winning trades: </td>
-            <td>{`${winLossPercent.numWins} (${winLossPercent.winPct}%)`}</td>
           </tr>
           <tr>
-            <td>Average daily P/L: </td>
-            <td>{toUsdFormat(averageDailyPL)}</td>
+            <td>Average winner: </td>
+            <td>{toUsdFormat(averageWinner)}</td>
             <td>Largest loss: </td>
             <td>{toUsdFormat(maxLoss)}</td>
-            <td>Average loss: </td>
-            <td>{toUsdFormat(averageLoser)}</td>
+          </tr>
+          <tr>
+            <td>Number of winning trades: </td>
+            <td>{`${winLossPercent.numWins} (${winLossPercent.winPct}%)`}</td>
+            <td>Average hold time (winners):</td>
+            <td>
+              {Duration.fromObject({ seconds: holdingTime.winners })
+                .shiftTo('minutes')
+                .toHuman({
+                  unitDisplay: 'short',
+                })}
+            </td>
+          </tr>
+          <tr>
             <td>Number of losing trades: </td>
             <td>
               {`${winLossPercent.numLosses} (${winLossPercent.lossPct}%)`}
             </td>
+            <td>Total trades: </td>
+            <td>{props.trades.length}</td>
+          </tr>
+          <tr>
+            <td>Average loss: </td>
+            <td>{toUsdFormat(averageLoser)}</td>
+            <td>Average daily P/L: </td>
+            <td>{toUsdFormat(averageDailyPL)}</td>
+          </tr>
+          <tr>
             <td>Profit factor:</td>
             <td>{winLossPercent.profitFactor}</td>
+            <td>Average hold time (losers):</td>
+            <td>
+              {Duration.fromObject({ seconds: holdingTime.losers })
+                .shiftTo('minutes')
+                .toHuman({
+                  unitDisplay: 'short',
+                })}
+            </td>
           </tr>
         </tbody>
       </table>

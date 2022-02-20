@@ -1,3 +1,4 @@
+import { Container } from '@mui/material';
 import { NextPage } from 'next';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,11 +16,7 @@ const TradesPage: NextPage = () => {
     dispatch(getExecutionsAsync());
   }, []);
 
-  return (
-    <div>
-      <TradesTable trades={trades} />
-    </div>
-  );
+  return <TradesTable trades={trades} />;
 };
 
 export default TradesPage;

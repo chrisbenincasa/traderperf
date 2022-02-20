@@ -1,42 +1,54 @@
-import { Dinero, toFormat, add, toUnit } from 'dinero.js';
+import { Chip, Stack } from '@mui/material';
+import { compare, Dinero } from 'dinero.js';
 import _ from 'lodash';
-import { DateTime } from 'luxon';
 import { useMemo } from 'react';
-import { Column, useTable } from 'react-table';
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import { Column, Row, TableInstance, useSortBy, useTable } from 'react-table';
 import { Trade } from '../model';
-import { dineroFromSnapshot, toUsdFormat, zero } from '../util/dineroUtil';
-import { groupByDate } from '../util/tradeUtil';
+import { toUsdFormat } from '../util/dineroUtil';
 
 interface Props {
   trades: Trade[];
 }
 
 interface TableData {
+  id?: number;
   symbol: string;
   numExecutions: number;
+  volume: number;
   timeOpened: string;
   longOrShort: string;
-  realizedPL: string;
+  realizedPL: Dinero<number>;
 }
 
 export default function TradesTable(props: Props) {
+  const sortPl = useMemo(
+    () => (rowA: Row<TableData>, rowB: Row<TableData>) => {
+      const result = compare(
+        rowA.original.realizedPL,
+        rowB.original.realizedPL
+      );
+      return result;
+    },
+    []
+  );
+
   const columns = useMemo<Column<TableData>[]>(
     () => [
       {
         Header: 'Symbol',
         accessor: 'symbol',
+        Cell: (x) => {
+          return <a href={`./trades/${x.row.original.id || 0}`}>{x.value}</a>;
+        },
       },
       {
         Header: 'Executions',
         accessor: 'numExecutions',
+      },
+      {
+        Header: 'Volume',
+        accessor: 'volume',
+        id: 'vol',
       },
       {
         Header: 'Opened',
@@ -49,6 +61,8 @@ export default function TradesTable(props: Props) {
       {
         Header: 'Realized P/L',
         accessor: 'realizedPL',
+        Cell: (x) => toUsdFormat(x.value),
+        sortType: sortPl,
       },
     ],
     []
@@ -56,34 +70,53 @@ export default function TradesTable(props: Props) {
 
   const data = useMemo<TableData[]>(() => {
     return props.trades.map<TableData>((trade) => {
+      if (trade.executions.length === 0) {
+        console.log(trade);
+      }
       return {
+        id: trade.id,
         symbol: trade.symbol,
+        volume: _.sum(trade.executions.map((e) => Math.abs(e.quantity))),
         numExecutions: trade.executions.length,
         timeOpened: trade.executions[0].timestamp.toISO(),
         longOrShort: trade.isShort ? 'Short' : 'Long',
-        realizedPL: toUsdFormat(trade.closedPl),
+        realizedPL: trade.closedPl,
       } as TableData;
     });
   }, [props.trades]);
 
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-    useTable({ columns, data });
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+    state: { sortBy },
+  }: TableInstance<TableData> = useTable(
+    { columns, data, initialState: { hiddenColumns: ['vol'] } },
+    useSortBy
+  );
 
   return (
-    <div
-      className="overflow-hidden 
-      rounded-t-xl bg-gradient-to-b from-slate-100  p-10"
-    >
-      <table {...getTableProps()} className="table-fixed">
+    <div>
+      <Stack direction="row">
+        <Chip label="Sup"></Chip>
+      </Stack>
+      <table {...getTableProps()} className="table-2">
         <thead>
           {headerGroups.map((headerGroup) => (
-            <tr
-              {...headerGroup.getHeaderGroupProps()}
-              className="border-b border-slate-100 p-4 pl-8 
-              text-slate-500 dark:border-slate-700 dark:text-slate-400"
-            >
+            <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column) => (
-                <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+                <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                  {column.render('Header')}
+                  <span>
+                    {column.isSorted
+                      ? column.isSortedDesc
+                        ? ' 🔽'
+                        : ' 🔼'
+                      : ''}
+                  </span>
+                </th>
               ))}
             </tr>
           ))}
@@ -92,11 +125,7 @@ export default function TradesTable(props: Props) {
           {rows.map((row) => {
             prepareRow(row);
             return (
-              <tr
-                {...row.getRowProps()}
-                className="border-b border-slate-100 p-4 pl-8 
-                text-slate-500 dark:border-slate-700 dark:text-slate-400"
-              >
+              <tr {...row.getRowProps()}>
                 {row.cells.map((cell) => {
                   return (
                     <td {...cell.getCellProps()}>{cell.render('Cell')}</td>

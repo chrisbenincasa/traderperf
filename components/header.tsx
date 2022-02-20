@@ -1,56 +1,115 @@
-const Header = () => {
-  return (
-    <header className="body-font text-gray-600">
-      <div
-        className="container mx-auto flex flex-col 
-        flex-wrap items-center p-5 md:flex-row"
-      >
+import MenuIcon from '@mui/icons-material/Menu';
+import {
+  AppBar as MuiAppBar,
+  Button,
+  IconButton,
+  styled,
+  Toolbar,
+  Typography,
+} from '@mui/material';
+import Link from 'next/link';
+import React, { RefObject, useCallback, useState } from 'react';
+import NavDrawer, { drawerWidth } from './navDrawer';
+
+const DrawerHeader = styled('div')(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'flex-end',
+  padding: theme.spacing(0, 1),
+  // necessary for content to be below app bar
+  ...theme.mixins.toolbar,
+}));
+
+const AppBar = styled(MuiAppBar, {
+  shouldForwardProp: (prop) => prop !== 'open',
+})(({ theme, open }) => ({
+  zIndex: theme.zIndex.drawer + 1,
+  transition: theme.transitions.create(['width', 'margin'], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  ...(open && {
+    marginLeft: drawerWidth,
+    width: `calc(100% - ${drawerWidth}px)`,
+    transition: theme.transitions.create(['width', 'margin'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
+}));
+
+interface MenuItemProps {
+  readonly to: string;
+  readonly primary?: string;
+  readonly button?: boolean;
+  readonly key?: string;
+  readonly selected?: boolean;
+  readonly listLength?: number;
+  readonly onClick?: (event: React.MouseEvent<HTMLElement>) => void;
+}
+
+const MenuItemLink = (props: MenuItemProps) => {
+  const { primary, to, selected, onClick } = props;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ButtonLink = React.forwardRef((props: any, ref) => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const { onClick, href } = props;
+    return (
+      <Link href={href} passHref>
         <a
-          className="title-font mb-4 flex items-center font-medium 
-                    text-gray-900 md:mb-0"
+          onClick={onClick}
+          ref={ref as RefObject<HTMLAnchorElement>}
+          {...props}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            className="h-10 w-10 rounded-full bg-indigo-500 p-2 text-white"
-            viewBox="0 0 24 24"
-          >
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
-          </svg>
-          <span className="ml-3 text-xl">TraderPerf</span>
+          {primary}
         </a>
-        <nav className="flex flex-wrap items-center justify-center text-base md:ml-auto">
-          <a className="mr-5 hover:text-gray-900" href="/trades">
-            Trades
-          </a>
-          <a className="mr-5 hover:text-gray-900" href="/stats">
-            Stats
-          </a>
-          <a className="mr-5 hover:text-gray-900" href="/import">
-            Import
-          </a>
-          <a className="mr-5 hover:text-gray-900">Fourth Link</a>
-        </nav>
-        <button className="mt-4 inline-flex items-center rounded border-0 bg-gray-100 py-1 px-3 text-base hover:bg-gray-200 focus:outline-none md:mt-0">
-          Button
-          <svg
-            fill="none"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            className="ml-1 h-4 w-4"
-            viewBox="0 0 24 24"
+      </Link>
+    );
+  });
+
+  return (
+    <Button
+      color="inherit"
+      selected={selected}
+      onClick={onClick}
+      href={to}
+      component={ButtonLink}
+    />
+  );
+};
+
+const Header = () => {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const toggleDrawer = useCallback(() => {
+    setDrawerOpen(!drawerOpen);
+  }, [drawerOpen]);
+
+  return (
+    <React.Fragment>
+      <AppBar position="sticky">
+        <Toolbar>
+          <IconButton
+            size="large"
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            sx={{ mr: 2 }}
+            onClick={() => toggleDrawer()}
           >
-            <path d="M5 12h14M12 5l7 7-7 7"></path>
-          </svg>
-        </button>
-      </div>
-    </header>
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            TraderPerf
+          </Typography>
+          <MenuItemLink to="/trades" primary="Trades" />
+          <MenuItemLink to="/stats" primary="Stats" />
+          <MenuItemLink to="/import" primary="Import" />
+        </Toolbar>
+      </AppBar>
+      <NavDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+    </React.Fragment>
   );
 };
 

@@ -52,6 +52,12 @@ export class TradeDao {
 
   @Column() currency: string;
 
+  get uniqueKey(): string {
+    return `${this.userId}_${this.symbol}_${this.opened.getTime()}_${
+      this.platform
+    }`;
+  }
+
   static fromTrade(trade: Trade): TradeDao {
     const dao = new TradeDao();
     dao.userId = 1; // Hardcode for now
@@ -61,9 +67,14 @@ export class TradeDao {
     dao.closed = trade.isOpen
       ? undefined
       : _.last(trade.executions)?.timestamp.toJSDate();
-    dao.executions = trade.executions.map((execution) =>
-      ExecutionDao.fromExeuction(execution)
-    );
+    dao.executions = trade.executions.map((execution) => {
+      const execDao = ExecutionDao.fromExeuction(execution);
+      execDao.trade = dao;
+      return execDao;
+    });
+    if (dao.symbol === 'NFLX') {
+      console.log(trade, trade.executions, dao.executions);
+    }
     dao.quantity = trade.quantity;
     dao.isOpen = trade.isOpen;
     dao.isShort = trade.isShort;
@@ -82,6 +93,7 @@ export class TradeDao {
 
   toTrade(): Trade {
     return {
+      id: this.id,
       platform: this.platform,
       symbol: this.symbol,
       quantity: this.quantity,
@@ -99,5 +111,29 @@ export class TradeDao {
         currency: currencyFromCode(this.currency)!,
       }),
     };
+  }
+
+  static equals(
+    left: TradeDao | undefined,
+    right: TradeDao | undefined
+  ): boolean {
+    if (!_.isUndefined(left) && !_.isUndefined(right)) {
+      if (left.id && right.id) {
+        return left.id === right.id;
+      }
+
+      if (left.opened === undefined) {
+        console.log(left);
+      }
+
+      return (
+        left.userId === right.userId &&
+        left.symbol === right.symbol &&
+        left.opened.getTime() === right.opened.getTime() &&
+        left.platform === right.platform
+      );
+    } else {
+      return false;
+    }
   }
 }

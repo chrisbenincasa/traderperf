@@ -1,3 +1,4 @@
+import { Typography } from '@mui/material';
 import Head from 'next/head';
 
 export default function Home() {
@@ -9,6 +10,9 @@ export default function Home() {
       </Head>
 
       <main className="flex w-full flex-1 flex-col items-center justify-center px-20 text-center">
+        <Typography variant="h4" component="h1" gutterBottom>
+          Next.js example
+        </Typography>
         <table className="table-auto">
           <thead>
             <tr>

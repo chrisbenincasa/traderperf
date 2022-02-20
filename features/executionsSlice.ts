@@ -8,16 +8,24 @@ import {
   TradeJson,
   TraderperfResponse,
 } from '../model';
+import { ImportTradesResponse } from '../model/api';
 import TraderPerfApiClient from '../util/apiClient';
 
 export interface ExeuctionsState {
   executions: ExecutionJson[];
   trades: TradeJson[];
+  tradeDetail?: TradeJson;
+  loading: {
+    tradeDetail: boolean;
+  };
 }
 
 const initialState: ExeuctionsState = {
   executions: [],
   trades: [],
+  loading: {
+    tradeDetail: false,
+  },
 };
 
 export const getExecutionsAsync = createAsyncThunk(
@@ -25,7 +33,18 @@ export const getExecutionsAsync = createAsyncThunk(
   async () => {
     const executions = await new TraderPerfApiClient().getExecutions();
     // Handle error
-    return executions.data as TraderperfResponse<TradeJson[]>;
+    return executions.data as TraderperfResponse<ImportTradesResponse>;
+  }
+);
+
+export type GetTradePayload = {
+  id: number;
+};
+export const getTradeAsync = createAsyncThunk(
+  'trades/fetch',
+  async (payload: GetTradePayload) => {
+    const trade = await new TraderPerfApiClient().getTrade(payload.id);
+    return trade.data as TraderperfResponse<TradeJson>;
   }
 );
 
@@ -48,10 +67,19 @@ export const executionsSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    builder.addCase(getExecutionsAsync.fulfilled, (state, action) => {
+      state.trades = [...action.payload.data!.imported];
+    });
+
+    builder.addCase(getTradeAsync.pending, (state) => {
+      state.loading.tradeDetail = true;
+    });
+
     builder.addCase(
-      getExecutionsAsync.fulfilled,
-      (state, action: PayloadAction<TraderperfResponse<TradeJson[]>>) => {
-        state.trades = [...action.payload.data];
+      getTradeAsync.fulfilled,
+      (state, action: PayloadAction<TraderperfResponse<TradeJson>>) => {
+        state.tradeDetail = action.payload.data;
+        state.loading.tradeDetail = false;
       }
     );
   },
@@ -59,6 +87,12 @@ export const executionsSlice = createSlice({
 
 export const selectTrades = (state: AppState) =>
   state.exeuctions.trades.map(fromTradeJson);
+
+export const selectTradeDetailLoading = (state: AppState) =>
+  state.exeuctions.loading.tradeDetail;
+
+export const selectTradeDetail = (state: AppState) =>
+  state.exeuctions.tradeDetail;
 
 export const { setExecutions } = executionsSlice.actions;
 

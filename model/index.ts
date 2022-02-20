@@ -4,11 +4,12 @@ import { DateTime } from 'luxon';
 import { dineroFromSnapshot } from '../util/dineroUtil';
 
 export type TraderperfRequest<T> = {
-  data: T;
+  data?: T;
 };
 
 export type TraderperfResponse<T> = {
-  data: T;
+  data?: T;
+  error?: string;
 };
 
 export enum ExecutionType {
@@ -58,6 +59,7 @@ export interface ExecutionJson {
 }
 
 export interface Execution {
+  id?: number;
   platform: Platform;
   symbol: string;
   executionType: ExecutionType;
@@ -94,6 +96,7 @@ export const toExecutionJson = (execution: Execution): ExecutionJson => {
 };
 
 export interface TradeJson {
+  id?: number;
   platform: Platform;
   symbol: string;
   quantity: number;
@@ -105,6 +108,7 @@ export interface TradeJson {
 }
 
 export interface Trade {
+  id?: number;
   platform: Platform;
   symbol: string;
   quantity: number;
@@ -117,6 +121,7 @@ export interface Trade {
 
 export const toTradeJson = (trade: Trade): TradeJson => {
   return {
+    id: trade.id,
     platform: trade.platform,
     symbol: trade.symbol,
     quantity: trade.quantity,
@@ -130,6 +135,7 @@ export const toTradeJson = (trade: Trade): TradeJson => {
 
 export const fromTradeJson = (tradeJson: TradeJson): Trade => {
   return {
+    id: tradeJson.id,
     platform: tradeJson.platform,
     symbol: tradeJson.symbol,
     quantity: tradeJson.quantity,

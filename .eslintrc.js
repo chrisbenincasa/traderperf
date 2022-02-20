@@ -11,7 +11,7 @@ module.exports = {
   parserOptions: {
     jsx: true,
     useJSXTextNode: true,
-    project: ["./tsconfig.json"],
+    project: ['./tsconfig.json'],
   },
   env: {
     browser: true,
@@ -28,5 +28,11 @@ module.exports = {
     indent: ['error', 2, { SwitchCase: 1 }],
     // we want to avoid extraneous spaces
     'no-multi-spaces': ['error'],
+    '@typescript-eslint/unbound-method': [
+      'error',
+      {
+        ignoreStatic: true,
+      },
+    ],
   },
 };

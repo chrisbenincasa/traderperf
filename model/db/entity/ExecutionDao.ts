@@ -53,6 +53,10 @@ export class ExecutionDao {
 
   @ManyToOne(() => TradeDao, (trade) => trade.executions) trade: TradeDao;
 
+  get uniqueKey(): string {
+    return getExecutionUniqueKey(this);
+  }
+
   static fromExeuction(execution: Execution): ExecutionDao {
     const dao = new ExecutionDao();
     dao.userId = 1; // Hardcode right now
@@ -73,6 +77,7 @@ export class ExecutionDao {
 
   toExecution(): Execution {
     return {
+      id: this.id,
       platform: this.platform,
       symbol: this.symbol,
       executionType: this.executionType,
@@ -91,3 +96,9 @@ export class ExecutionDao {
     };
   }
 }
+
+export const getExecutionUniqueKey = (execution: ExecutionDao) => {
+  return `${execution.userId}_${
+    execution.symbol
+  }_${execution.executionTimestamp.getTime()}_${execution.platform}`;
+};
