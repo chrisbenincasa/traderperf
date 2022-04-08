@@ -1,14 +1,15 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import _ from 'lodash';
 import { AppState } from '../app/store';
 import {
   Execution,
   ExecutionJson,
   fromTradeJson,
   toExecutionJson,
+  Trade,
   TradeJson,
   TraderperfResponse,
 } from '../model';
-import { ImportTradesResponse } from '../model/api';
 import TraderPerfApiClient from '../util/apiClient';
 
 export interface ExeuctionsState {
@@ -33,7 +34,7 @@ export const getExecutionsAsync = createAsyncThunk(
   async () => {
     const executions = await new TraderPerfApiClient().getExecutions();
     // Handle error
-    return executions.data as TraderperfResponse<ImportTradesResponse>;
+    return executions.data as TraderperfResponse<TradeJson[]>;
   }
 );
 
@@ -67,9 +68,12 @@ export const executionsSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(getExecutionsAsync.fulfilled, (state, action) => {
-      state.trades = [...action.payload.data!.imported];
-    });
+    builder.addCase(
+      getExecutionsAsync.fulfilled,
+      (state, action: PayloadAction<TraderperfResponse<TradeJson[]>>) => {
+        state.trades = [...action.payload.data!];
+      }
+    );
 
     builder.addCase(getTradeAsync.pending, (state) => {
       state.loading.tradeDetail = true;
@@ -85,14 +89,17 @@ export const executionsSlice = createSlice({
   },
 });
 
-export const selectTrades = (state: AppState) =>
+export const selectTrades = (state: AppState): Trade[] =>
   state.exeuctions.trades.map(fromTradeJson);
 
 export const selectTradeDetailLoading = (state: AppState) =>
   state.exeuctions.loading.tradeDetail;
 
-export const selectTradeDetail = (state: AppState) =>
-  state.exeuctions.tradeDetail;
+export const selectTradeDetail = (state: AppState): Trade | undefined => {
+  if (state.exeuctions.tradeDetail) {
+    return fromTradeJson(state.exeuctions.tradeDetail);
+  }
+};
 
 export const { setExecutions } = executionsSlice.actions;
 

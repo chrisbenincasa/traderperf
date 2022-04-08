@@ -1,4 +1,11 @@
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRow,
+} from '@mui/material';
+import {
   add,
   greaterThan,
   lessThan,
@@ -152,60 +159,62 @@ export default function TradesSimpleStatsTable(props: Props) {
           <div className="py-4 pr-8">{toUsdFormat(maxGain)}</div>
         </div>
       </div> */}
-      <table className="table-2">
-        <tbody>
-          <tr>
-            <td>Total gain/loss: </td>
-            <td>{toUsdFormat(totalGainLoss)}</td>
-            <td>Largest gain: </td>
-            <td>{toUsdFormat(maxGain)}</td>
-          </tr>
-          <tr>
-            <td>Average winner: </td>
-            <td>{toUsdFormat(averageWinner)}</td>
-            <td>Largest loss: </td>
-            <td>{toUsdFormat(maxLoss)}</td>
-          </tr>
-          <tr>
-            <td>Number of winning trades: </td>
-            <td>{`${winLossPercent.numWins} (${winLossPercent.winPct}%)`}</td>
-            <td>Average hold time (winners):</td>
-            <td>
-              {Duration.fromObject({ seconds: holdingTime.winners })
-                .shiftTo('minutes')
-                .toHuman({
-                  unitDisplay: 'short',
-                })}
-            </td>
-          </tr>
-          <tr>
-            <td>Number of losing trades: </td>
-            <td>
-              {`${winLossPercent.numLosses} (${winLossPercent.lossPct}%)`}
-            </td>
-            <td>Total trades: </td>
-            <td>{props.trades.length}</td>
-          </tr>
-          <tr>
-            <td>Average loss: </td>
-            <td>{toUsdFormat(averageLoser)}</td>
-            <td>Average daily P/L: </td>
-            <td>{toUsdFormat(averageDailyPL)}</td>
-          </tr>
-          <tr>
-            <td>Profit factor:</td>
-            <td>{winLossPercent.profitFactor}</td>
-            <td>Average hold time (losers):</td>
-            <td>
-              {Duration.fromObject({ seconds: holdingTime.losers })
-                .shiftTo('minutes')
-                .toHuman({
-                  unitDisplay: 'short',
-                })}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <TableContainer>
+        <Table size="small">
+          <TableBody>
+            <TableRow>
+              <TableCell>Total gain/loss: </TableCell>
+              <TableCell>{toUsdFormat(totalGainLoss)}</TableCell>
+              <TableCell>Largest gain: </TableCell>
+              <TableCell>{toUsdFormat(maxGain)}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Average winner: </TableCell>
+              <TableCell>{toUsdFormat(averageWinner)}</TableCell>
+              <TableCell>Largest loss: </TableCell>
+              <TableCell>{toUsdFormat(maxLoss)}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Average loss: </TableCell>
+              <TableCell>{toUsdFormat(averageLoser)}</TableCell>
+              <TableCell>Average hold time (winners):</TableCell>
+              <TableCell>
+                {Duration.fromObject({ seconds: holdingTime.winners })
+                  .shiftTo('minutes')
+                  .toHuman({
+                    unitDisplay: 'short',
+                  })}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Total trades: </TableCell>
+              <TableCell>{props.trades.length}</TableCell>
+              <TableCell>Average hold time (losers):</TableCell>
+              <TableCell>
+                {Duration.fromObject({ seconds: holdingTime.losers })
+                  .shiftTo('minutes')
+                  .toHuman({
+                    unitDisplay: 'short',
+                  })}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Number of winning trades: </TableCell>
+              <TableCell>{`${winLossPercent.numWins} (${winLossPercent.winPct}%)`}</TableCell>
+              <TableCell>Average daily P/L: </TableCell>
+              <TableCell>{toUsdFormat(averageDailyPL)}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Number of losing trades: </TableCell>
+              <TableCell>
+                {`${winLossPercent.numLosses} (${winLossPercent.lossPct}%)`}
+              </TableCell>
+              <TableCell>Profit factor:</TableCell>
+              <TableCell>{winLossPercent.profitFactor}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </TableContainer>
     </div>
   );
 }

@@ -6,6 +6,8 @@ import {
   dinero,
   Dinero,
   DineroSnapshot,
+  greaterThan,
+  lessThan,
   toFormat,
 } from 'dinero.js';
 import _ from 'lodash';
@@ -38,6 +40,39 @@ export const average = (nums: Dinero<number>[]) => {
   }
 
   return divide(sum(nums), nums.length);
+};
+
+export const min = (nums: Dinero<number>[]): Dinero<number> => {
+  // Check currencies throughout
+
+  if (nums.length === 0) {
+    return zero();
+  }
+
+  let m = nums[0];
+  for (let i = 1; i < nums.length; i++) {
+    if (lessThan(nums[i], m)) {
+      m = nums[i];
+    }
+  }
+
+  return m;
+};
+
+export const max = (nums: Dinero<number>[]): Dinero<number> => {
+  // Check currencies throughout
+  if (nums.length === 0) {
+    return zero();
+  }
+
+  let m = nums[0];
+  for (let i = 1; i < nums.length; i++) {
+    if (greaterThan(nums[i], m)) {
+      m = nums[i];
+    }
+  }
+
+  return m;
 };
 
 export const toUsdFormat = (d: Dinero<number>) => {

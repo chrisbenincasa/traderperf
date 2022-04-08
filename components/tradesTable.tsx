@@ -1,4 +1,12 @@
-import { Chip, Stack } from '@mui/material';
+import {
+  Chip,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+} from '@mui/material';
 import { compare, Dinero } from 'dinero.js';
 import _ from 'lodash';
 import { useMemo } from 'react';
@@ -48,7 +56,7 @@ export default function TradesTable(props: Props) {
       {
         Header: 'Volume',
         accessor: 'volume',
-        id: 'vol',
+        id: 'volume',
       },
       {
         Header: 'Opened',
@@ -102,12 +110,14 @@ export default function TradesTable(props: Props) {
       <Stack direction="row">
         <Chip label="Sup"></Chip>
       </Stack>
-      <table {...getTableProps()} className="table-2">
-        <thead>
+      <Table {...getTableProps()}>
+        <TableHead>
           {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
+            <TableRow {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column) => (
-                <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                <TableCell
+                  {...column.getHeaderProps(column.getSortByToggleProps())}
+                >
                   {column.render('Header')}
                   <span>
                     {column.isSorted
@@ -116,26 +126,28 @@ export default function TradesTable(props: Props) {
                         : ' 🔼'
                       : ''}
                   </span>
-                </th>
+                </TableCell>
               ))}
-            </tr>
+            </TableRow>
           ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
+        </TableHead>
+        <TableBody {...getTableBodyProps()}>
           {rows.map((row) => {
             prepareRow(row);
             return (
-              <tr {...row.getRowProps()}>
+              <TableRow {...row.getRowProps()}>
                 {row.cells.map((cell) => {
                   return (
-                    <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                    <TableCell {...cell.getCellProps()}>
+                      {cell.render('Cell')}
+                    </TableCell>
                   );
                 })}
-              </tr>
+              </TableRow>
             );
           })}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }

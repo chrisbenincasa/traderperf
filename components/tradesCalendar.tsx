@@ -1,10 +1,11 @@
+import { Box, styled, Typography } from '@mui/material';
+import { red as muiRed, green as muiGreen } from '@mui/material/colors';
 import { greaterThan } from 'dinero.js';
 import _ from 'lodash';
-import { DateTime, Interval, WeekdayNumbers } from 'luxon';
+import { DateTime, Interval } from 'luxon';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { selectTrades } from '../features/executionsSlice';
-import { Trade } from '../model';
 import { zero } from '../util/dineroUtil';
 import calculateTradeStats from '../util/tradeStats';
 import { groupByDate } from '../util/tradeUtil';
@@ -23,6 +24,32 @@ const offsetToClass = {
 type Props = {
   startDate: DateTime;
 };
+
+const Calendar = styled(Box)(({ theme }) => ({
+  display: 'grid',
+  gridTemplateColumns: 'repeat(7, minmax(0, 1fr))',
+  gap: theme.spacing(2),
+}));
+
+type CalendarDayProps = {
+  green: boolean;
+  red: boolean;
+};
+
+const CalendarDay = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'green' && prop !== 'red',
+})<CalendarDayProps>(({ theme, green, red }) => {
+  let bgColor = theme.palette.grey[100];
+  if (green) {
+    bgColor = muiGreen[200];
+  } else if (red) {
+    bgColor = muiRed[200];
+  }
+  return {
+    aspectRatio: '1/1',
+    backgroundColor: bgColor,
+  };
+});
 
 export default function TradesCalendar(props: Props) {
   const trades = useSelector(selectTrades);
@@ -49,35 +76,41 @@ export default function TradesCalendar(props: Props) {
         .flatten()
         .value();
 
-      let bgClazz = 'bg-slate-100';
+      let x = 0;
       if (tradesForDate.length > 0) {
         const tradeStats = calculateTradeStats(tradesForDate);
         const cumulativePl = tradeStats.totalGainLoss();
         if (greaterThan(cumulativePl, zero())) {
-          bgClazz = 'bg-lime-500';
+          x = 1;
         } else {
-          bgClazz = 'bg-red-500';
+          x = -1;
         }
       }
 
       squares.push(
-        <div
-          className={`${clazz} aspect-square ${bgClazz}`}
+        <CalendarDay
           key={d.toISODate()}
+          className={clazz}
+          green={x > 0}
+          red={x < 0}
         >
           {d.toISODate()}
-        </div>
+        </CalendarDay>
       );
     }
     return squares;
   }, [trades, startDate]);
 
   return (
-    <div>
-      <div className="text-center">
-        <h3>{startDate.monthLong}</h3>
-      </div>
-      <div className="mx-10 grid grid-cols-7 gap-2">{squares}</div>
-    </div>
+    <Box>
+      <Box textAlign="center">
+        <Typography variant="h3">{startDate.monthLong}</Typography>
+      </Box>
+      {/* <Grid container spacing={2} columns={7}>
+        {squares}
+      </Grid> */}
+      <Calendar>{squares}</Calendar>
+      {/* <div className="mx-10 grid grid-cols-7 gap-2">{squares}</div> */}
+    </Box>
   );
 }

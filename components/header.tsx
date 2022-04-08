@@ -79,7 +79,11 @@ const MenuItemLink = (props: MenuItemProps) => {
   );
 };
 
-const Header = () => {
+type Props = {
+  toggleDrawer: () => void;
+};
+
+const Header = (props: Props) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const toggleDrawer = useCallback(() => {
@@ -96,19 +100,16 @@ const Header = () => {
             color="inherit"
             aria-label="menu"
             sx={{ mr: 2 }}
-            onClick={() => toggleDrawer()}
+            onClick={() => props.toggleDrawer()}
           >
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             TraderPerf
           </Typography>
-          <MenuItemLink to="/trades" primary="Trades" />
-          <MenuItemLink to="/stats" primary="Stats" />
-          <MenuItemLink to="/import" primary="Import" />
         </Toolbar>
       </AppBar>
-      <NavDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      {/* <NavDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} /> */}
     </React.Fragment>
   );
 };
